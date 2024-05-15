@@ -110,12 +110,28 @@ app.post("/postOrderData", function (req, res) {
 app.post("/postUserData", function (req, res) {
   console.log("POST request received : " + JSON.stringify(req.body));
 
-  userCollection.insertOne(req.body, function (err, result) {
+  // Assume req.body contains a unique identifier like 'email'
+  const userEmail = req.body.email;
+
+  // Check if user already exists
+  userCollection.findOne({ email: userEmail }, function (err, existingUser) {
     if (err) {
-      console.log("Some error.. " + err + "\n");
+      console.log("Error checking user existence: " + err);
+      res.status(500).send("Internal server error");
+    } else if (existingUser) {
+      console.log("User already exists: " + JSON.stringify(existingUser));
+      res.status(400).send("User already exists");
     } else {
-      console.log(JSON.stringify(req.body) + " have been uploaded\n");
-      res.send(JSON.stringify(req.body));
+      // Insert the new user since they don't exist
+      userCollection.insertOne(req.body, function (err, result) {
+        if (err) {
+          console.log("Some error.. " + err + "\n");
+          res.status(500).send("Error inserting user data");
+        } else {
+          console.log(JSON.stringify(req.body) + " have been uploaded\n");
+          res.send(JSON.stringify(req.body));
+        }
+      });
     }
   });
 });
