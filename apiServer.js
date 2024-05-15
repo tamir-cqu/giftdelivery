@@ -11,7 +11,7 @@ app.use(cors());
 
 const MongoClient = require("mongodb").MongoClient;
 const uri =
-  "mongodb+srv://cqu:pass@cluster0.vc0wils.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+  "mongodb+srv://cqu:Qwer1234@cluster0.vc0wils.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -62,7 +62,6 @@ app.get("/getOrderDataTest", (req, res) => {
 
 app.post("/verifyUser", (req, res) => {
   loginData = req.body;
-
   console.log(loginData);
 
   userCollection
@@ -81,8 +80,10 @@ app.post("/verifyUser", (req, res) => {
 });
 
 app.get("/getOrderData", (req, res) => {
+  let filter = req.query;
+
   orderCollection
-    .find({}, { projection: { _id: 0 } })
+    .find(filter, { projection: { _id: 0 } })
     .toArray(function (err, docs) {
       if (err) {
         console.log("Some error.. " + err + "\n");
@@ -120,14 +121,9 @@ app.post("/postUserData", function (req, res) {
 });
 
 app.delete("/deleteOrders", async (req, res) => {
-  const { customerfName, customerlName } = req.body;
-  const query = {
-    customerfName: customerfName,
-    customerlName: customerlName,
-  };
-
+  let filter = req.body;
   try {
-    const result = await orderCollection.deleteMany(query);
+    const result = await orderCollection.deleteMany(filter);
 
     res.status(200).json({
       message: "Orders deleted successfully.",
